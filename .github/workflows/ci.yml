@@ -49,7 +49,7 @@ jobs:
          fi
        
          echo ""$TAG""
-         RESULT_TAG = "${{ secrets.DOCKERHUB_USERNAME }}/github-actions-app:"${TAG}""
+         RESULT_TAG="${{ secrets.DOCKERHUB_USERNAME }}/github-actions-app:""${TAG}""
          
       -
         name: Build and push
