@@ -47,13 +47,13 @@ jobs:
            NEXT_VERSION=$((LATEST_VERSION + 1))
            TAG="v${NEXT_VERSION}"
          fi
-         echo "::workflow-command parameter1="$TAG"::"$TAG""
+         echo ""$TAG""
          
       -
         name: Build and push
         uses: docker/build-push-action@v4
         with:
-          tags: type=raw,value="$TAG"
+          tags: "a"
           context: .
           push: ${{ github.event_name != 'pull_request' }}
           labels: ${{ steps.meta.outputs.labels }}
