@@ -46,15 +46,15 @@ jobs:
           fi
        
           echo $TAG
-          RESULT_TAG="${{ secrets.DOCKERHUB_USERNAME }}/github-actions-app:${TAG}"
-          
-          echo $RESULT_TAG
+        
+          env:
+            RESULT_TAG : "${{ secrets.DOCKERHUB_USERNAME }}/github-actions-app:${TAG}"
 
           
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
-          tags: ${RESULT_TAG}
+          tags: $RESULT_TAG
           context: .
           push: ${{ github.event_name != 'pull_request' }}
           labels: ${{ steps.meta.outputs.labels }}
