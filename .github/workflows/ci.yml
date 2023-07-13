@@ -10,53 +10,50 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v3
-      -
-       name: Set up Python
-       uses: actions/setup-python@v2
-       with:
-         python-version: "3.8"  
 
-      -
-        name: Docker meta
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.8"
+
+      - name: Docker meta
         id: meta
         uses: docker/metadata-action@v4
         with:
           images: dlskawo0409/github-actions-app
-      -
-        name: Login to DockerHub
+
+      - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Docker Build and Tag
+        run: |
+          DOCKER_TAGS=$(curl -s "https://hub.docker.com/v2/repositories/dlskawo0409/github-actions-app/tags" | jq -r '.results[].name' | grep -E '^v[0-9]+$' | sort -r)
           
-      -
-       name: Docker Build and Tag
-       run: |
-         DOCKER_TAGS=$(curl -s "https://hub.docker.com/v2/repositories/dlskawo0409/github-actions-app/tags" | jq -r '.results[].name' | grep -E '^v[0-9]+$' | sort -r)
-         
-         if [ -z "$DOCKER_TAGS" ]; then
-           # If no existing tags found, start with v1
-           TAG="v1"
-         else
-           # Get the latest tag and increment the version number
-           LATEST_TAG=$(echo "$DOCKER_TAGS" | head -n 1)
-           LATEST_VERSION=$(echo "$LATEST_TAG" | grep -oE '[0-9]+')
-           NEXT_VERSION=$((LATEST_VERSION + 1))
-           TAG=$(printf "v%d" $NEXT_VERSION)"
-         fi
+          if [ -z "$DOCKER_TAGS" ]; then
+            # If no existing tags found, start with v1
+            TAG="v1"
+          else
+            # Get the latest tag and increment the version number
+            LATEST_TAG=$(echo "$DOCKER_TAGS" | head -n 1)
+            LATEST_VERSION=$(echo "$LATEST_TAG" | grep -oE '[0-9]+')
+            NEXT_VERSION=$((LATEST_VERSION + 1))
+            TAG=$(printf "v%d" $NEXT_VERSION)
+          fi
        
-         echo ""$TAG""
-         RESULT_TAG="${{ secrets.DOCKERHUB_USERNAME }}/github-actions-app:${TAG}"
+          echo $TAG
+          RESULT_TAG="${{ secrets.DOCKERHUB_USERNAME }}/github-actions-app:${TAG}"
           
-         echo $RESULT_TAG
-      -
-        name: Build and push
+          echo $RESULT_TAG
+          
+      - name: Build and push
         uses: docker/build-push-action@v4
         with:
-          tags: $RESULT_TAG
+          tags: ${{ env.RESULT_TAG }}
           context: .
           push: ${{ github.event_name != 'pull_request' }}
           labels: ${{ steps.meta.outputs.labels }}
