@@ -47,7 +47,8 @@ jobs:
            NEXT_VERSION=$((LATEST_VERSION + 1))
            TAG="v${NEXT_VERSION}"
          fi
-
+         echo "::workflow-command parameter1="$TAG"::"$TAG""
+         
       -
         name: Build and push
         uses: docker/build-push-action@v4
