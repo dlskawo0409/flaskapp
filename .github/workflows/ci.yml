@@ -46,14 +46,16 @@ jobs:
            LATEST_VERSION=$(echo "$LATEST_TAG" | grep -oE '[0-9]+')
            NEXT_VERSION=$((LATEST_VERSION + 1))
            TAG="v${NEXT_VERSION}"
-         fi          
+         fi
+         
+         echo "::set-output name=tag::$TAG"
           
           
       -
         name: Build and push
         uses: docker/build-push-action@v4
         with:
-          tags: ${{TAG}}
+          tags: ${{ steps.version.outputs.tag }}
           context: .
           push: ${{ github.event_name != 'pull_request' }}
           labels: ${{ steps.meta.outputs.labels }}
