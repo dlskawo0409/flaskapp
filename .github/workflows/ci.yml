@@ -35,7 +35,7 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v4
         with:
-          tags: type=ref,event=tag
+          tags: v*
           context: .
           push: ${{ github.event_name != 'pull_request' }}
           labels: ${{ steps.meta.outputs.labels }}
