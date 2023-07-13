@@ -1,4 +1,4 @@
-name: Python application
+name: ci
 
 on:
   push:
@@ -7,32 +7,36 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  docker:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: "3.8"
-#     - name: Display Python version
-#       run: python -c "import sys; print(sys.version)"
-    - name: Generate Docker metadata
-      id: meta
-      uses: docker/metadata-action@v3
-      with:
-        images: |
-          docker.io/${{ github.repository }}
-          tags: |
-            type=semver,pattern={{version}}
-          flavor: |
-            latest=true
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+       name: Set up Python
+       uses: actions/setup-python@v2
+       with:
+         python-version: "3.8"  
 
-    - name: Build & push Docker image
-      uses: mr-smithers-excellent/docker-build-push@v5
-      with:
-        image: dlskawo0409/github-actions-app
-        registry: docker.io
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-        tags: ${{ steps.meta.outputs.tags }}
+      -
+        name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: dlskawo0409/github-actions-app
+      -
+        name: Login to DockerHub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
