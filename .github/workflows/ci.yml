@@ -51,7 +51,7 @@ jobs:
           echo $RESULT_TAG
           echo "::set-output name=tag::$RESULT_TAG"
           
-          echo  ${{ steps.output.outputs.tag}
+          echo  ${{ steps.output.outputs.tag}}
           
       - name: Build and push
         uses: docker/build-push-action@v4
