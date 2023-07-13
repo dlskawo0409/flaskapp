@@ -45,17 +45,18 @@ jobs:
            LATEST_TAG=$(echo "$DOCKER_TAGS" | head -n 1)
            LATEST_VERSION=$(echo "$LATEST_TAG" | grep -oE '[0-9]+')
            NEXT_VERSION=$((LATEST_VERSION + 1))
-           TAG="v${NEXT_VERSION}"
+           TAG=$(printf "v%d" $NEXT_VERSION)"
          fi
        
          echo ""$TAG""
-         RESULT_TAG="${{ secrets.DOCKERHUB_USERNAME }}/github-actions-app:""${TAG}""
-         
+         RESULT_TAG="${{ secrets.DOCKERHUB_USERNAME }}/github-actions-app:${TAG}"
+          
+         echo $RESULT_TAG
       -
         name: Build and push
         uses: docker/build-push-action@v4
         with:
-          tags: RESULT_TAG
+          tags: $RESULT_TAG
           context: .
           push: ${{ github.event_name != 'pull_request' }}
           labels: ${{ steps.meta.outputs.labels }}
